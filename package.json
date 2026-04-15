@@ -1,0 +1,61 @@
+{
+  "name": "convalytics-dev",
+  "version": "0.2.0",
+  "description": "Convex component for server-side analytics tracking with Convalytics",
+  "type": "module",
+  "license": "MIT",
+  "homepage": "https://convalytics.dev",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Dan-Cleary/convalytics-convex-component.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Dan-Cleary/convalytics-convex-component/issues"
+  },
+  "keywords": [
+    "convex",
+    "convex-component",
+    "analytics",
+    "product-analytics",
+    "event-tracking"
+  ],
+  "exports": {
+    ".": {
+      "@convex-dev/component-source": "./src/client/index.ts",
+      "types": "./dist/client/index.d.ts",
+      "default": "./dist/client/index.js"
+    },
+    "./convex.config": {
+      "@convex-dev/component-source": "./src/component/convex.config.ts",
+      "types": "./dist/component/convex.config.d.ts",
+      "default": "./dist/component/convex.config.js"
+    },
+    "./_generated/component": {
+      "@convex-dev/component-source": "./src/component/_generated/component.ts",
+      "types": "./dist/component/_generated/component.d.ts",
+      "default": "./dist/component/_generated/component.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src",
+    "example",
+    "SKILL.md",
+    "CLAUDE.md",
+    "README.md"
+  ],
+  "main": "./dist/client/index.js",
+  "types": "./dist/client/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "codegen": "convex codegen --component-dir ./src/component"
+  },
+  "peerDependencies": {
+    "convex": ">=1.0.0"
+  },
+  "devDependencies": {
+    "convex": "^1.33.1",
+    "typescript": "~5.9.3"
+  }
+}
