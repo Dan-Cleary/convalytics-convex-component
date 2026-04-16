@@ -4,6 +4,34 @@ import type { FunctionReference } from "convex/server";
 // Override via options.ingestUrl for local development or self-hosting.
 const DEFAULT_INGEST_URL = "https://basic-goshawk-557.convex.site/ingest";
 
+// Module-level flag to ensure the warning is emitted only once
+let hasWarnedAboutUnparseableUrl = false;
+
+// Reset the warning flag (for testing purposes)
+export function resetWarningFlag(): void {
+  hasWarnedAboutUnparseableUrl = false;
+}
+
+// Extract the Convex deployment slug (e.g. "uncommon-sandpiper-123") from the
+// CONVEX_CLOUD_URL env var Convex injects into every deployment's function
+// environment. Returns undefined if the URL is missing or malformed.
+export function extractDeploymentSlug(url: string | undefined): string | undefined {
+  if (!url) return undefined;
+  const match = url.match(/https?:\/\/([a-z]+-[a-z]+-\d+)\./);
+
+  // If URL is present but doesn't match the expected pattern, warn once
+  if (!match && !hasWarnedAboutUnparseableUrl) {
+    hasWarnedAboutUnparseableUrl = true;
+    console.warn(
+      `[convalytics] Could not parse deployment slug from CONVEX_CLOUD_URL: "${url}". ` +
+      `This may be a custom domain, self-hosted, or local deployment. ` +
+      `Set the "deploymentName" option explicitly in your Convalytics constructor to tag events correctly.`
+    );
+  }
+
+  return match?.[1];
+}
+
 type TrackArgs = {
   name: string;
   userId: string;
@@ -47,10 +75,13 @@ export type { ConvalyticsComponent };
  * import { Convalytics } from "convalytics-dev";
  *
  * export const analytics = new Convalytics(components.convalytics, {
- *   writeKey: process.env.CONVALYTICS_WRITE_KEY!,
- *   deploymentName: process.env.CONVALYTICS_DEPLOYMENT_NAME,
+ *   writeKey: "wk_...",
  * });
  * ```
+ *
+ * The deployment name is auto-detected from `CONVEX_CLOUD_URL` at track-time,
+ * so server-side events are tagged correctly on dev, preview, and prod without
+ * any per-deployment configuration. Pass `deploymentName` explicitly to override.
  *
  * @example
  * ```typescript
@@ -109,10 +140,21 @@ export class Convalytics {
       return;
     }
     try {
+      // Resolve deployment name at call-time so auto-detection picks up the
+      // injected CONVEX_CLOUD_URL for whichever deployment is executing.
+      // Typed access to process.env without pulling in @types/node.
+      const env = (
+        globalThis as unknown as {
+          process?: { env?: Record<string, string | undefined> };
+        }
+      ).process?.env;
+      const deploymentName =
+        this.options.deploymentName ??
+        extractDeploymentSlug(env?.CONVEX_CLOUD_URL);
       await ctx.runMutation(this.component.lib.track, {
         writeKey: this.options.writeKey,
         ingestUrl: this.options.ingestUrl,
-        deploymentName: this.options.deploymentName,
+        deploymentName,
         ...event,
       });
     } catch (e) {

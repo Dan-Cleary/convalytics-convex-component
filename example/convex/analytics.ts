@@ -2,8 +2,11 @@ import { components } from "./_generated/api";
 import { Convalytics } from "convalytics-dev";
 
 // Create a singleton — import this wherever you need to track events.
+// The write key is a public ingest identifier — safe to commit. It also ships
+// in the browser script tag. The deployment is auto-detected at runtime from
+// CONVEX_CLOUD_URL, so events are tagged correctly on every deployment.
 export const analytics = new Convalytics(components.convalytics, {
-  writeKey: process.env.CONVALYTICS_WRITE_KEY!,
+  writeKey: "YOUR_WRITE_KEY",
 });
 
 // --- Usage examples ---
