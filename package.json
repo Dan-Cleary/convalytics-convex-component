@@ -39,6 +39,7 @@
   "files": [
     "dist",
     "src",
+    "!src/**/*.test.ts",
     "example",
     "SKILL.md",
     "CLAUDE.md",
