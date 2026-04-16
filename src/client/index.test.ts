@@ -1,5 +1,5 @@
 import { describe, expect, test, vi, beforeEach } from "vitest";
-import { Convalytics, extractDeploymentSlug } from "./index";
+import { Convalytics, extractDeploymentSlug, resetWarningFlag } from "./index";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -149,8 +149,9 @@ describe("Convalytics.track", () => {
 
 describe("extractDeploymentSlug", () => {
   beforeEach(() => {
-    // Clear console mocks before each test
+    // Clear console mocks and reset warning flag before each test
     vi.restoreAllMocks();
+    resetWarningFlag();
   });
 
   test("extracts slug from valid Convex cloud URL", () => {
@@ -167,6 +168,7 @@ describe("extractDeploymentSlug", () => {
     const consoleWarnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
     const result = extractDeploymentSlug("not-a-url");
     expect(result).toBe(undefined);
+    expect(consoleWarnSpy).toHaveBeenCalledTimes(1);
     expect(consoleWarnSpy).toHaveBeenCalledWith(
       expect.stringContaining("Could not parse deployment slug from CONVEX_CLOUD_URL")
     );
@@ -176,6 +178,7 @@ describe("extractDeploymentSlug", () => {
     const consoleWarnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
     const result = extractDeploymentSlug("https://app.example.com");
     expect(result).toBe(undefined);
+    expect(consoleWarnSpy).toHaveBeenCalledTimes(1);
     expect(consoleWarnSpy).toHaveBeenCalledWith(
       expect.stringContaining("Could not parse deployment slug from CONVEX_CLOUD_URL")
     );
@@ -195,6 +198,7 @@ describe("extractDeploymentSlug", () => {
     const consoleWarnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
     const result = extractDeploymentSlug("https://invalid-123.convex.cloud");
     expect(result).toBe(undefined);
+    expect(consoleWarnSpy).toHaveBeenCalledTimes(1);
     expect(consoleWarnSpy).toHaveBeenCalledWith(
       expect.stringContaining("Could not parse deployment slug from CONVEX_CLOUD_URL")
     );
