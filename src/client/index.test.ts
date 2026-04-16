@@ -1,5 +1,5 @@
-import { describe, expect, test, vi } from "vitest";
-import { Convalytics } from "./index";
+import { describe, expect, test, vi, beforeEach } from "vitest";
+import { Convalytics, extractDeploymentSlug } from "./index";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -140,5 +140,71 @@ describe("Convalytics.track", () => {
 
     expect(errorSpy).toHaveBeenCalledOnce();
     errorSpy.mockRestore();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// extractDeploymentSlug
+// ---------------------------------------------------------------------------
+
+describe("extractDeploymentSlug", () => {
+  beforeEach(() => {
+    // Clear console mocks before each test
+    vi.restoreAllMocks();
+  });
+
+  test("extracts slug from valid Convex cloud URL", () => {
+    const result = extractDeploymentSlug("https://uncommon-sandpiper-123.convex.cloud");
+    expect(result).toBe("uncommon-sandpiper-123");
+  });
+
+  test("returns undefined for undefined input", () => {
+    const result = extractDeploymentSlug(undefined);
+    expect(result).toBe(undefined);
+  });
+
+  test("returns undefined for malformed URL and warns", () => {
+    const consoleWarnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const result = extractDeploymentSlug("not-a-url");
+    expect(result).toBe(undefined);
+    expect(consoleWarnSpy).toHaveBeenCalledWith(
+      expect.stringContaining("Could not parse deployment slug from CONVEX_CLOUD_URL")
+    );
+  });
+
+  test("returns undefined for custom domain URL and warns", () => {
+    const consoleWarnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const result = extractDeploymentSlug("https://app.example.com");
+    expect(result).toBe(undefined);
+    expect(consoleWarnSpy).toHaveBeenCalledWith(
+      expect.stringContaining("Could not parse deployment slug from CONVEX_CLOUD_URL")
+    );
+  });
+
+  test("extracts slug from http URL (not just https)", () => {
+    const result = extractDeploymentSlug("http://brave-monkey-456.convex.cloud");
+    expect(result).toBe("brave-monkey-456");
+  });
+
+  test("extracts slug from URL with path", () => {
+    const result = extractDeploymentSlug("https://happy-turtle-789.convex.cloud/some/path");
+    expect(result).toBe("happy-turtle-789");
+  });
+
+  test("returns undefined for URL with incorrect slug pattern and warns", () => {
+    const consoleWarnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const result = extractDeploymentSlug("https://invalid-123.convex.cloud");
+    expect(result).toBe(undefined);
+    expect(consoleWarnSpy).toHaveBeenCalledWith(
+      expect.stringContaining("Could not parse deployment slug from CONVEX_CLOUD_URL")
+    );
+  });
+
+  test("returns undefined for empty string without warning", () => {
+    const consoleWarnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const result = extractDeploymentSlug("");
+    expect(result).toBe(undefined);
+    // Empty string is falsy, so it returns early without warning
+    expect(consoleWarnSpy).not.toHaveBeenCalled();
   });
 });

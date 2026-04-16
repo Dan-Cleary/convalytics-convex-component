@@ -4,12 +4,31 @@ import type { FunctionReference } from "convex/server";
 // Override via options.ingestUrl for local development or self-hosting.
 const DEFAULT_INGEST_URL = "https://basic-goshawk-557.convex.site/ingest";
 
+// Module-level flag to ensure the warning is emitted only once
+let hasWarnedAboutUnparseableUrl = false;
+
+// Reset the warning flag (for testing purposes)
+export function resetWarningFlag(): void {
+  hasWarnedAboutUnparseableUrl = false;
+}
+
 // Extract the Convex deployment slug (e.g. "uncommon-sandpiper-123") from the
 // CONVEX_CLOUD_URL env var Convex injects into every deployment's function
 // environment. Returns undefined if the URL is missing or malformed.
-function extractDeploymentSlug(url: string | undefined): string | undefined {
+export function extractDeploymentSlug(url: string | undefined): string | undefined {
   if (!url) return undefined;
   const match = url.match(/https?:\/\/([a-z]+-[a-z]+-\d+)\./);
+
+  // If URL is present but doesn't match the expected pattern, warn once
+  if (!match && !hasWarnedAboutUnparseableUrl) {
+    hasWarnedAboutUnparseableUrl = true;
+    console.warn(
+      `[convalytics] Could not parse deployment slug from CONVEX_CLOUD_URL: "${url}". ` +
+      `This may be a custom domain, self-hosted, or local deployment. ` +
+      `Set the "deploymentName" option explicitly in your Convalytics constructor to tag events correctly.`
+    );
+  }
+
   return match?.[1];
 }
 
