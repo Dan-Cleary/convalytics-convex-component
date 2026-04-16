@@ -45,7 +45,7 @@ If the user already has a write key, pass it directly:
 npx convalytics init YOUR_WRITE_KEY
 ```
 
-This handles: package install, config patching, env vars (`CONVALYTICS_WRITE_KEY` + `CONVALYTICS_DEPLOYMENT_NAME` for environment tagging), browser script tag, and agent skill file.
+This handles: package install, config patching, writing `convex/analytics.ts` with the write key inlined, browser script tag, and agent skill file. No Convex environment variables are set — the write key is safe to commit (it also ships in the browser script tag) and the deployment is auto-detected at runtime from `CONVEX_CLOUD_URL`.
 
 The CLI outputs a **claim URL** — share it with the user so they can connect the project to their Convalytics account. Events flow immediately, before claiming.
 
@@ -200,20 +200,13 @@ import { components } from "./_generated/api";
 import { Convalytics } from "convalytics-dev";
 
 export const analytics = new Convalytics(components.convalytics, {
-  writeKey: process.env.CONVALYTICS_WRITE_KEY!,
-  deploymentName: process.env.CONVALYTICS_DEPLOYMENT_NAME,
+  writeKey: "YOUR_WRITE_KEY",
 });
 ```
 
-**4. Set the environment variables**
-```bash
-npx convex env set CONVALYTICS_WRITE_KEY YOUR_WRITE_KEY
-npx convex env set CONVALYTICS_DEPLOYMENT_NAME YOUR_DEPLOYMENT_SLUG
-```
+The write key is a public ingest identifier — safe to commit. No environment variables are required: the component auto-detects the deployment (dev / preview / prod) at runtime from Convex's injected `CONVEX_CLOUD_URL`, so events are tagged correctly on every deployment without per-deployment setup.
 
-The deployment slug is the name from your `.env.local` (e.g. `colorful-capybara-119` from `CONVEX_DEPLOYMENT=dev:colorful-capybara-119`). This enables automatic environment tagging — events from dev deployments show as "development" and prod as "production" in the dashboard.
-
-**5. Add browser page view tracking** to your HTML `<head>`:
+**4. Add browser page view tracking** to your HTML `<head>`:
 ```html
 <script defer src="https://YOUR_CONVEX_SITE_URL/script.js?key=YOUR_WRITE_KEY"></script>
 ```
@@ -329,29 +322,23 @@ await analytics.track(ctx, {
 
 Events are automatically tagged as "development" or "production":
 
-- **Server-side events** (from the Convex component): The component reads `CONVALYTICS_DEPLOYMENT_NAME` and the ingest endpoint resolves it against a cache of deployment types from the Convex Management API. Dev deployments → "development", prod → "production".
-- **Browser-side events** (from the script tag): The script includes the page's origin (`location.origin`) in each event payload. `localhost` / `127.0.0.1` → "development", everything else → "production". Fully automatic — no configuration needed.
+- **Server-side events** (from the Convex component): The component reads the deployment slug from `CONVEX_CLOUD_URL` (injected by Convex on every deployment) and the ingest endpoint resolves it against a cache of deployment types populated from the Convex Management API when the project is claimed. Dev deployments → "development", prod → "production".
+- **Browser-side events** (from the script tag): The script includes the page's origin (`location.origin`) in each event payload. `localhost` / `127.0.0.1` → "development", everything else → "production".
 
-The dashboard has an environment toggle (All / Prod / Dev) to filter views.
-
-If events are showing in "All" but not in "Dev" or "Prod", check that `CONVALYTICS_DEPLOYMENT_NAME` is set:
-```bash
-npx convex env list
-```
+Both are fully automatic — no configuration needed. The dashboard has an environment toggle (All / Prod / Dev) to filter views.
 
 ---
 
 ## Troubleshooting
 
 **Events not appearing:**
-- Check `CONVALYTICS_WRITE_KEY` is set: `npx convex env list`
+- Check the write key in `convex/analytics.ts` matches the one in the Convalytics dashboard
 - Check Convex function logs for `[Convalytics]` errors
 - Re-run verify: `npx convalytics verify YOUR_WRITE_KEY`
 
 **Events show in "All" but not under Dev/Prod filter:**
-- Check `CONVALYTICS_DEPLOYMENT_NAME` is set: `npx convex env list`
-- If missing, set it: `npx convex env set CONVALYTICS_DEPLOYMENT_NAME YOUR_DEPLOYMENT_SLUG`
-- After claiming the project, the dashboard caches deployment types from the Convex Management API
+- The deployment type cache is populated when the project is claimed — make sure you've completed the claim flow via the link printed by `npx convalytics init`
+- If the project was claimed before the auto-detect feature shipped, re-claim or wait for the next deploy; the cache is keyed on the live `CONVEX_CLOUD_URL` slug
 
 **`runMutation is not a function` / crash in queries:**
 - `analytics.track()` can only be called from mutations or actions — **never from queries**

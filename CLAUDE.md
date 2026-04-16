@@ -86,13 +86,13 @@ await analytics.track(ctx, {
 
 ## Configuration
 
-The write key is stored in `CONVALYTICS_WRITE_KEY` environment variable.
-The deployment name is stored in `CONVALYTICS_DEPLOYMENT_NAME` for environment tagging.
+The write key is inlined as a string literal in `convex/analytics.ts` (safe to commit — it's a public ingest identifier that also ships in the browser script tag). The deployment name is auto-detected at runtime from `CONVEX_CLOUD_URL`, which Convex injects into every deployment — no environment variables required.
 
-Set them via Convex dashboard or:
-```bash
-npx convex env set CONVALYTICS_WRITE_KEY your_key_here
-npx convex env set CONVALYTICS_DEPLOYMENT_NAME your_deployment_slug
+```typescript
+// convex/analytics.ts
+export const analytics = new Convalytics(components.convalytics, {
+  writeKey: "wk_abc123...",
+});
 ```
 
 ## Verify events are flowing
