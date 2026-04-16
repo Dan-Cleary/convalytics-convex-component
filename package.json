@@ -49,13 +49,18 @@
   "scripts": {
     "build": "tsc",
     "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "codegen": "convex codegen --component-dir ./src/component"
   },
   "peerDependencies": {
     "convex": ">=1.0.0"
   },
   "devDependencies": {
+    "@edge-runtime/vm": "^5.0.0",
     "convex": "^1.33.1",
-    "typescript": "~5.9.3"
+    "convex-test": "^0.0.48",
+    "typescript": "~5.9.3",
+    "vitest": "^4.1.4"
   }
 }
