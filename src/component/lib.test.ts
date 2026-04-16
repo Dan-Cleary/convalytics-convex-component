@@ -230,4 +230,81 @@ describe("sendEvent", () => {
       }),
     ).resolves.toBeNull();
   });
+
+  test("includes userEmail and userName in payload when provided", async () => {
+    const t = convexTest(schema, modules);
+
+    await t.action(internal.lib.sendEvent, {
+      writeKey: "wk_test",
+      ingestUrl: "https://example.convex.site/ingest",
+      name: "event",
+      userId: "user_1",
+      sessionId: "sess_1",
+      timestamp: 1700000000000,
+      props: {},
+      userEmail: "dan@example.com",
+      userName: "Dan",
+    });
+
+    const [, options] = fetchMock.mock.calls[0] as [string, RequestInit];
+    const body = JSON.parse(options.body as string) as Record<string, unknown>;
+    expect(body.userEmail).toBe("dan@example.com");
+    expect(body.userName).toBe("Dan");
+  });
+
+  test("excludes userEmail, userName, and deploymentName when not provided", async () => {
+    const t = convexTest(schema, modules);
+
+    await t.action(internal.lib.sendEvent, {
+      writeKey: "wk_test",
+      ingestUrl: "https://example.convex.site/ingest",
+      name: "event",
+      userId: "user_1",
+      sessionId: "sess_1",
+      timestamp: 1700000000000,
+      props: {},
+    });
+
+    const [, options] = fetchMock.mock.calls[0] as [string, RequestInit];
+    const body = JSON.parse(options.body as string) as Record<string, unknown>;
+    expect(body).not.toHaveProperty("userEmail");
+    expect(body).not.toHaveProperty("userName");
+    expect(body).not.toHaveProperty("deploymentName");
+  });
+
+  test("includes deploymentName in payload when provided", async () => {
+    const t = convexTest(schema, modules);
+
+    await t.action(internal.lib.sendEvent, {
+      writeKey: "wk_test",
+      ingestUrl: "https://example.convex.site/ingest",
+      name: "event",
+      userId: "user_1",
+      sessionId: "sess_1",
+      timestamp: 1700000000000,
+      props: {},
+      deploymentName: "happy-panda-123",
+    });
+
+    const [, options] = fetchMock.mock.calls[0] as [string, RequestInit];
+    const body = JSON.parse(options.body as string) as Record<string, unknown>;
+    expect(body.deploymentName).toBe("happy-panda-123");
+  });
+
+  test("includes abort signal with 10s timeout", async () => {
+    const t = convexTest(schema, modules);
+
+    await t.action(internal.lib.sendEvent, {
+      writeKey: "wk_test",
+      ingestUrl: "https://example.convex.site/ingest",
+      name: "event",
+      userId: "user_1",
+      sessionId: "sess_1",
+      timestamp: Date.now(),
+      props: {},
+    });
+
+    const [, options] = fetchMock.mock.calls[0] as [string, RequestInit];
+    expect(options.signal).toBeInstanceOf(AbortSignal);
+  });
 });

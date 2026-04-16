@@ -72,8 +72,8 @@ export const sendEvent = internalAction({
         sessionId: args.sessionId,
         timestamp: args.timestamp,
         props: args.props,
-        deploymentName: args.deploymentName,
       };
+      if (args.deploymentName) payload.deploymentName = args.deploymentName;
       if (args.userEmail) payload.userEmail = args.userEmail;
       if (args.userName) payload.userName = args.userName;
 
@@ -81,6 +81,7 @@ export const sendEvent = internalAction({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(10_000),
       });
       if (!resp.ok) {
         console.error(`[Convalytics] Ingest returned ${resp.status}: ${await resp.text()}`);
