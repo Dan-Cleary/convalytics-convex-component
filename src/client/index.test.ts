@@ -144,6 +144,75 @@ describe("Convalytics.track", () => {
 });
 
 // ---------------------------------------------------------------------------
+// Missing writeKey warning
+// ---------------------------------------------------------------------------
+
+describe("missing writeKey behavior", () => {
+  beforeEach(() => {
+    vi.restoreAllMocks();
+    resetWarningFlag();
+  });
+
+  test("constructor warns once when writeKey is empty string", () => {
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+    new Convalytics(fakeComponent, { writeKey: "" });
+    expect(warnSpy).toHaveBeenCalledOnce();
+    expect(warnSpy.mock.calls[0][0]).toContain("No writeKey configured");
+    warnSpy.mockRestore();
+  });
+
+  test("constructor warns when writeKey is whitespace-only", () => {
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+    new Convalytics(fakeComponent, { writeKey: "   " });
+    expect(warnSpy).toHaveBeenCalledOnce();
+    expect(warnSpy.mock.calls[0][0]).toContain("No writeKey configured");
+    warnSpy.mockRestore();
+  });
+
+  test("track skips runMutation and does not throw when writeKey is missing", async () => {
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const c = new Convalytics(fakeComponent, { writeKey: "" });
+    resetWarningFlag();
+    warnSpy.mockClear();
+
+    const ctx = mockCtx();
+    await c.track(ctx, { name: "evt", userId: "u1" });
+
+    expect(ctx.runMutation).not.toHaveBeenCalled();
+    expect(warnSpy).toHaveBeenCalledOnce();
+    expect(warnSpy.mock.calls[0][0]).toContain("No writeKey configured");
+    warnSpy.mockRestore();
+  });
+
+  test("warning is emitted only once across multiple track calls", async () => {
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const c = new Convalytics(fakeComponent, { writeKey: "" });
+    resetWarningFlag();
+    warnSpy.mockClear();
+
+    const ctx = mockCtx();
+    await c.track(ctx, { name: "evt1", userId: "u1" });
+    await c.track(ctx, { name: "evt2", userId: "u1" });
+    await c.track(ctx, { name: "evt3", userId: "u1" });
+
+    expect(warnSpy).toHaveBeenCalledOnce();
+    warnSpy.mockRestore();
+  });
+
+  test("trims writeKey before storing", async () => {
+    const c = new Convalytics(fakeComponent, { writeKey: "  wk_padded  " });
+    const ctx = mockCtx();
+
+    await c.track(ctx, { name: "evt", userId: "u1" });
+
+    expect(ctx.runMutation).toHaveBeenCalledWith(
+      fakeComponent.lib.track,
+      expect.objectContaining({ writeKey: "wk_padded" }),
+    );
+  });
+});
+
+// ---------------------------------------------------------------------------
 // extractDeploymentSlug
 // ---------------------------------------------------------------------------
 

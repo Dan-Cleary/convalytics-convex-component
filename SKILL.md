@@ -357,7 +357,6 @@ Both are fully automatic — no configuration needed. The dashboard has an envir
 **Events fire from dev but not prod:**
 - Most common cause: the Convex **prod** deployment hasn't been updated with the instrumented code. `git push` typically only redeploys the frontend; the Convex backend needs its own deploy.
 - Fix: run `npx convex deploy` (targets prod) or, in CI, ensure `CONVEX_DEPLOY_KEY` is set and your build step runs `npx convex deploy --cmd '...'`.
-- If your `convex/analytics.ts` reads the write key from an env var (`process.env.CONVALYTICS_WRITE_KEY`), note that Convex env vars are **per-deployment** — set it on prod too: `npx convex env set CONVALYTICS_WRITE_KEY YOUR_WRITE_KEY --prod`.
 - Don't rely on `npx convalytics verify` alone — it confirms the ingest endpoint accepts events (HTTP 200) but does NOT verify the Convex component is deployed in your prod environment or that `analytics.track()` is wired up. Trigger a real user action in prod and check the dashboard for that event.
 
 **Events show in "All" but not under Dev/Prod filter:**

@@ -4,12 +4,25 @@ import type { FunctionReference } from "convex/server";
 // Override via options.ingestUrl for local development or self-hosting.
 const DEFAULT_INGEST_URL = "https://basic-goshawk-557.convex.site/ingest";
 
-// Module-level flag to ensure the warning is emitted only once
+// Module-level flags to ensure each warning is emitted only once
 let hasWarnedAboutUnparseableUrl = false;
+let hasWarnedAboutMissingWriteKey = false;
 
-// Reset the warning flag (for testing purposes)
+// Reset the warning flags (for testing purposes)
 export function resetWarningFlag(): void {
   hasWarnedAboutUnparseableUrl = false;
+  hasWarnedAboutMissingWriteKey = false;
+}
+
+function warnMissingWriteKey(source: string): void {
+  if (hasWarnedAboutMissingWriteKey) return;
+  hasWarnedAboutMissingWriteKey = true;
+  console.warn(
+    `[convalytics] No writeKey configured (${source}). Events will NOT be recorded. ` +
+    `Set a writeKey on the Convalytics constructor in convex/analytics.ts. ` +
+    `The write key is a public ingest identifier and is safe to commit — ` +
+    `see https://convalytics.dev/skill.md for setup.`,
+  );
 }
 
 // Extract the Convex deployment slug (e.g. "uncommon-sandpiper-123") from the
@@ -103,8 +116,13 @@ export class Convalytics {
     options: { writeKey: string; ingestUrl?: string; deploymentName?: string },
   ) {
     this.component = component;
+    const writeKey =
+      typeof options.writeKey === "string" ? options.writeKey.trim() : "";
+    if (!writeKey) {
+      warnMissingWriteKey("constructor received empty or undefined writeKey");
+    }
     this.options = {
-      writeKey: options.writeKey,
+      writeKey,
       ingestUrl: options.ingestUrl ?? DEFAULT_INGEST_URL,
       deploymentName: options.deploymentName,
     };
@@ -137,6 +155,10 @@ export class Convalytics {
         `[convalytics] analytics.track("${event.name}") called from a query context — ` +
         `track() can only be used in mutations or actions. This call was ignored.`,
       );
+      return;
+    }
+    if (!this.options.writeKey) {
+      warnMissingWriteKey(`track("${event.name}") called with no writeKey`);
       return;
     }
     try {
