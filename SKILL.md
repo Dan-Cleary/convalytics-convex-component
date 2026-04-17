@@ -185,12 +185,13 @@ All the changes from setup and instrumentation are local. Events won't flow in p
 npx convalytics verify YOUR_WRITE_KEY
 ```
 
-**Important — `verify` is a shallow check.** It only confirms the ingest endpoint accepts events (HTTP 200). It does NOT prove:
-- the Convex component is deployed
-- your `analytics.track()` calls are reachable from a real code path
-- events are flowing from **prod** specifically
+`verify` sends a test event, polls the Convalytics backend to confirm the event landed in storage, and prints recent activity (events + pageviews over the last 5m / 1h / 24h, plus environments seen). If you see `Environments: dev, production`, both sides are reporting.
 
-After deploying, trigger a real user action in each environment (dev and prod) that should fire an instrumented event, then check the Convalytics dashboard → Custom Events to confirm the event landed with the right environment tag. This is the only check that actually proves end-to-end delivery.
+**What verify still can't prove:** it uses the same writeKey you pass as the argument — it doesn't know if your *code* is actually calling `analytics.track()` from the paths you instrumented. If recent activity shows only the CLI test event, check:
+- Browser: the `<script>` tag is in your deployed `index.html`
+- Server: `analytics.track()` is being called + `npx convex deploy` ran for prod
+
+After deploying, trigger a real user action in each environment that should fire an instrumented event and re-run verify or check the dashboard.
 
 ---
 
@@ -357,7 +358,7 @@ Both are fully automatic — no configuration needed. The dashboard has an envir
 **Events fire from dev but not prod:**
 - Most common cause: the Convex **prod** deployment hasn't been updated with the instrumented code. `git push` typically only redeploys the frontend; the Convex backend needs its own deploy.
 - Fix: run `npx convex deploy` (targets prod) or, in CI, ensure `CONVEX_DEPLOY_KEY` is set and your build step runs `npx convex deploy --cmd '...'`.
-- Don't rely on `npx convalytics verify` alone — it confirms the ingest endpoint accepts events (HTTP 200) but does NOT verify the Convex component is deployed in your prod environment or that `analytics.track()` is wired up. Trigger a real user action in prod and check the dashboard for that event.
+- `npx convalytics verify` now polls the backend and prints recent activity per environment — if you see only `dev` under `Environments:`, prod isn't reporting. Trigger a real user action in prod and re-run verify.
 
 **Events show in "All" but not under Dev/Prod filter:**
 - The deployment type cache is populated when the project is claimed — make sure you've completed the claim flow via the link printed by `npx convalytics init`
