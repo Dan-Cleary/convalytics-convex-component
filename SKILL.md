@@ -164,15 +164,33 @@ This is critical for apps with auth — without it, all browser-side page views 
 
 ### 5. Commit and deploy
 
-All the changes from setup and instrumentation are local. Web analytics and browser-side events won't work in production until deployed.
+All the changes from setup and instrumentation are local. Events won't flow in production until **both** of these ship:
 
-**Tell the user what files were changed**, then ask if they'd like you to commit and deploy or if they'll handle it themselves. Don't commit or deploy without their go-ahead.
+1. **Frontend deploy** (whatever the project uses — `git push`, `vercel deploy`, etc.) — delivers the script tag that captures page views.
+2. **Convex backend deploy** — delivers the `convex/analytics.ts` component and any `analytics.track()` calls you instrumented. This is a **separate step** from your frontend deploy:
+
+   ```bash
+   npx convex deploy
+   ```
+
+   If you push to git and only the frontend auto-deploys, your Convex prod deployment will still be running the old code with no tracking — events will fire from dev but silently drop in prod.
+
+**If deploying Convex from CI** (e.g. Vercel, GitHub Actions): set `CONVEX_DEPLOY_KEY` in the CI environment and use `npx convex deploy --cmd '<your build command>'` so the Convex push runs as part of the build. Without it, the Convex backend will fall behind the frontend.
+
+**Tell the user what files were changed** and remind them about the separate Convex deploy, then ask if they'd like you to commit and deploy or if they'll handle it themselves. Don't commit or deploy without their go-ahead.
 
 ### 6. Verify
 
 ```bash
 npx convalytics verify YOUR_WRITE_KEY
 ```
+
+**Important — `verify` is a shallow check.** It only confirms the ingest endpoint accepts events (HTTP 200). It does NOT prove:
+- the Convex component is deployed
+- your `analytics.track()` calls are reachable from a real code path
+- events are flowing from **prod** specifically
+
+After deploying, trigger a real user action in each environment (dev and prod) that should fire an instrumented event, then check the Convalytics dashboard → Custom Events to confirm the event landed with the right environment tag. This is the only check that actually proves end-to-end delivery.
 
 ---
 
@@ -335,6 +353,12 @@ Both are fully automatic — no configuration needed. The dashboard has an envir
 - Check the write key in `convex/analytics.ts` matches the one in the Convalytics dashboard
 - Check Convex function logs for `[Convalytics]` errors
 - Re-run verify: `npx convalytics verify YOUR_WRITE_KEY`
+
+**Events fire from dev but not prod:**
+- Most common cause: the Convex **prod** deployment hasn't been updated with the instrumented code. `git push` typically only redeploys the frontend; the Convex backend needs its own deploy.
+- Fix: run `npx convex deploy` (targets prod) or, in CI, ensure `CONVEX_DEPLOY_KEY` is set and your build step runs `npx convex deploy --cmd '...'`.
+- If your `convex/analytics.ts` reads the write key from an env var (`process.env.CONVALYTICS_WRITE_KEY`), note that Convex env vars are **per-deployment** — set it on prod too: `npx convex env set CONVALYTICS_WRITE_KEY YOUR_WRITE_KEY --prod`.
+- Don't rely on `npx convalytics verify` alone — it confirms the ingest endpoint accepts events (HTTP 200) but does NOT verify the Convex component is deployed in your prod environment or that `analytics.track()` is wired up. Trigger a real user action in prod and check the dashboard for that event.
 
 **Events show in "All" but not under Dev/Prod filter:**
 - The deployment type cache is populated when the project is claimed — make sure you've completed the claim flow via the link printed by `npx convalytics init`
