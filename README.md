@@ -97,6 +97,7 @@ export const stripeWebhook = httpAction(async (ctx, req) => {
 |--------|------|----------|-------------|
 | `writeKey` | `string` | Yes | Your Convalytics project write key |
 | `ingestUrl` | `string` | No | Override ingest endpoint (for local dev) |
+| `deploymentName` | `string` | No | Override deployment name tag (auto-detected from `CONVEX_CLOUD_URL` if omitted) |
 
 ### `analytics.track(ctx, event)`
 
