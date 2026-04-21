@@ -1,8 +1,10 @@
 # convalytics-dev
 
-Server-side analytics for Convex apps. Track events reliably from mutations and actions — server-side events aren't affected by ad blockers and are never dropped on page unload.
+Server-side analytics for Convex apps. Track events reliably from mutations and actions. Server-side events aren't affected by ad blockers and are never dropped on page unload.
 
 Pairs with the Convalytics browser script for full-stack analytics: web traffic + server-side product events in one dashboard.
+
+For the full product manual, see [convalytics.dev/llms-full.txt](https://convalytics.dev/llms-full.txt). OpenAPI spec at [convalytics.dev/openapi.json](https://convalytics.dev/openapi.json).
 
 ## Install
 
@@ -39,9 +41,9 @@ export const analytics = new Convalytics(components.convalytics, {
 });
 ```
 
-The write key is a public ingest identifier — safe to commit. It also ships in the browser script tag. No Convex environment variable is required: the component auto-detects the deployment (dev / preview / prod) from Convex's injected `CONVEX_CLOUD_URL` so events are tagged correctly without per-deployment config.
+The write key is a public ingest identifier, safe to commit. It also ships in the browser script tag. No Convex environment variable is required: the component auto-detects the deployment (dev / preview / prod) from Convex's injected `CONVEX_CLOUD_URL` so events are tagged correctly without per-deployment config.
 
-Get your write key from the [Convalytics dashboard](https://convalytics.dev) — or run `npx convalytics init` to auto-provision one.
+Get your write key from the [Convalytics dashboard](https://convalytics.dev), or run `npx convalytics init` to auto-provision one.
 
 ## Usage
 
@@ -105,13 +107,13 @@ export const stripeWebhook = httpAction(async (ctx, req) => {
 |-------|------|----------|-------------|
 | `name` | `string` | Yes | Event name (e.g. `"user_signed_up"`) |
 | `userId` | `string` | Yes | Stable user identifier |
-| `userEmail` | `string` | No | User email — shown in dashboard instead of raw ID |
-| `userName` | `string` | No | User display name — shown in dashboard |
+| `userEmail` | `string` | No | User email, shown in dashboard instead of raw ID |
+| `userName` | `string` | No | User display name, shown in dashboard |
 | `sessionId` | `string` | No | Session ID (auto-generated if omitted) |
 | `timestamp` | `number` | No | Unix ms timestamp (defaults to `Date.now()`) |
 | `props` | `Record<string, string \| number \| boolean>` | No | Additional properties |
 
-Events are delivered asynchronously and never throw — analytics failures are logged but never propagate to the caller.
+Events are delivered asynchronously and never throw; analytics failures are logged but never propagate to the caller.
 
 ## Web analytics
 
@@ -129,7 +131,7 @@ Your Convex site URL is shown in the [Convalytics dashboard](https://convalytics
 npx convalytics init
 ```
 
-Auto-provisions a project, installs the package, patches `convex.config.ts`, creates `convex/analytics.ts` with the write key inlined, and inserts the browser script tag. No write key required — one is created for you. Pass an existing key to reuse a project:
+Auto-provisions a project, installs the package, patches `convex.config.ts`, creates `convex/analytics.ts` with the write key inlined, and inserts the browser script tag. No write key required, one is created for you. Pass an existing key to reuse a project:
 
 ```bash
 npx convalytics init YOUR_WRITE_KEY
