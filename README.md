@@ -125,6 +125,19 @@ For browser page view tracking, add to your `<head>`:
 
 Your Convex site URL is shown in the [Convalytics dashboard](https://convalytics.dev) after claiming your project, or use the CLI (below) to insert it automatically.
 
+## Query your analytics with Claude
+
+Once events are flowing, install the Convalytics MCP server to query your analytics from Claude Desktop, Claude Code, Cursor, or Windsurf in natural language. Read-only tools: `top_pages`, `top_referrers`, `events_count`, `recent_events`, `get_usage`, `list_projects`.
+
+Generate an API token at [convalytics.dev/tokens](https://convalytics.dev/tokens), then install in Claude Code:
+
+```bash
+claude mcp add convalytics https://api.convalytics.dev/mcp \
+  --header "Authorization: Bearer $CONVALYTICS_TOKEN"
+```
+
+Requires the Solo plan or higher. See [convalytics.dev/mcp](https://convalytics.dev/mcp) for full install instructions across clients.
+
 ## Quick setup via CLI
 
 ```bash

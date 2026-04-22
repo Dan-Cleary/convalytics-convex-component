@@ -200,6 +200,35 @@ npx convalytics verify YOUR_WRITE_KEY
 
 After deploying, trigger a real user action in each environment that should fire an instrumented event and re-run verify or check the dashboard.
 
+### 7. Optional: install the Convalytics MCP server
+
+Once events are flowing, the user can install the Convalytics MCP server to query their analytics from Claude Desktop, Claude Code, Cursor, Windsurf, or any MCP-capable AI assistant. Read-only tools expose `top_pages`, `top_referrers`, `events_count`, `recent_events`, `get_usage`, and `list_projects`.
+
+**Requires the Solo plan or higher** ($29/mo). Token creation is free on any plan, but the `/mcp` endpoint itself gates on Solo+.
+
+1. Direct the user to generate an API token at https://convalytics.dev/tokens. It is shown only once; they should copy it.
+2. For Claude Code:
+   ```bash
+   claude mcp add convalytics https://api.convalytics.dev/mcp \
+     --header "Authorization: Bearer $CONVALYTICS_TOKEN"
+   ```
+3. For Claude Desktop, edit `~/Library/Application Support/Claude/claude_desktop_config.json`:
+   ```json
+   {
+     "mcpServers": {
+       "convalytics": {
+         "url": "https://api.convalytics.dev/mcp",
+         "headers": { "Authorization": "Bearer cnv_..." }
+       }
+     }
+   }
+   ```
+4. Cursor / Windsurf follow the same JSON shape in their MCP settings.
+
+After install, the user can ask their assistant things like *"what are my top pages this week on Convalytics?"* or *"how many signup_completed events in the last 24 hours?"* and the agent will use the MCP server to answer.
+
+Full MCP documentation: https://convalytics.dev/mcp. Server card: https://convalytics.dev/.well-known/mcp/server-card.json.
+
 ---
 
 ## Manual setup (if CLI isn't available)
