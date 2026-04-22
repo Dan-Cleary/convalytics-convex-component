@@ -202,7 +202,15 @@ After deploying, trigger a real user action in each environment that should fire
 
 ### 7. Optional: install the Convalytics MCP server
 
-Once events are flowing, the user can install the Convalytics MCP server to query their analytics from Claude Desktop, Claude Code, Cursor, Windsurf, or any MCP-capable AI assistant. Read-only tools expose `top_pages`, `top_referrers`, `events_count`, `recent_events`, `get_usage`, and `list_projects`.
+Once events are flowing, the user can install the Convalytics MCP server to query their analytics from Claude Desktop, Claude Code, Cursor, Windsurf, or any MCP-capable AI assistant. Nine read-only tools:
+
+- `list_projects`, `get_usage` — team-level.
+- `top_pages`, `top_referrers`, `pageviews_count` — web traffic.
+- `events_count`, `recent_events` — custom product events.
+- `weekly_digest` — one-call summary of a project (traffic + events + period-over-period comparison).
+- `user_activity` — one-call per-user snapshot (matches by userEmail or visitorId; returns identity, totals, pages visited, event names, recent events).
+
+**The per-user tools only work if the app identifies its users.** Step 4 above wires up `convalytics.identify()` for browser events and `userEmail` / `userName` for server-side `analytics.track()` calls. Without that, `user_activity` and the `user` filter on other tools can only match on anonymous `visitorId`s — which aren't useful to a human asking "how is dan@example.com using my app?"
 
 **Requires the Solo plan or higher** ($29/mo). Token creation is free on any plan, but the `/mcp` endpoint itself gates on Solo+.
 

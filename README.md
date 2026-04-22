@@ -127,7 +127,7 @@ Your Convex site URL is shown in the [Convalytics dashboard](https://convalytics
 
 ## Query your analytics with Claude
 
-Once events are flowing, install the Convalytics MCP server to query your analytics from Claude Desktop, Claude Code, Cursor, or Windsurf in natural language. Read-only tools: `top_pages`, `top_referrers`, `events_count`, `recent_events`, `get_usage`, `list_projects`.
+Once events are flowing, install the Convalytics MCP server to query your analytics from Claude Desktop, Claude Code, Cursor, or Windsurf in natural language. Nine read-only tools including `weekly_digest` (one-call summary of a project with period-over-period comparison) and `user_activity` (one-call per-user snapshot, matches by userEmail or visitorId). Call `convalytics.identify(userId, { email, name })` in your app so the per-user queries can answer "how is dan@example.com using my app?" style questions.
 
 Generate an API token at [convalytics.dev/tokens](https://convalytics.dev/tokens), then install in Claude Code:
 
