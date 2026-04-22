@@ -209,7 +209,7 @@ Once events are flowing, the user can install the Convalytics MCP server to quer
 1. Direct the user to generate an API token at https://convalytics.dev/tokens. It is shown only once; they should copy it.
 2. For Claude Code:
    ```bash
-   claude mcp add convalytics https://api.convalytics.dev/mcp \
+   claude mcp add --transport http convalytics https://api.convalytics.dev/mcp \
      --header "Authorization: Bearer $CONVALYTICS_TOKEN"
    ```
 3. For Claude Desktop, edit `~/Library/Application Support/Claude/claude_desktop_config.json`:

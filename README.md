@@ -132,7 +132,7 @@ Once events are flowing, install the Convalytics MCP server to query your analyt
 Generate an API token at [convalytics.dev/tokens](https://convalytics.dev/tokens), then install in Claude Code:
 
 ```bash
-claude mcp add convalytics https://api.convalytics.dev/mcp \
+claude mcp add --transport http convalytics https://api.convalytics.dev/mcp \
   --header "Authorization: Bearer $CONVALYTICS_TOKEN"
 ```
 
