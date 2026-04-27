@@ -2,7 +2,7 @@ import type { FunctionReference } from "convex/server";
 
 // The production Convalytics ingest endpoint.
 // Override via options.ingestUrl for local development or self-hosting.
-const DEFAULT_INGEST_URL = "https://basic-goshawk-557.convex.site/ingest";
+const DEFAULT_INGEST_URL = "https://api.convalytics.dev/ingest";
 
 // Module-level flags to ensure each warning is emitted only once
 let hasWarnedAboutUnparseableUrl = false;

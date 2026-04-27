@@ -29,7 +29,7 @@ describe("Convalytics constructor", () => {
     expect(ctx.runMutation).toHaveBeenCalledWith(
       fakeComponent.lib.track,
       expect.objectContaining({
-        ingestUrl: "https://basic-goshawk-557.convex.site/ingest",
+        ingestUrl: "https://api.convalytics.dev/ingest",
       }),
     );
   });
@@ -71,7 +71,7 @@ describe("Convalytics.track", () => {
     expect(ctx.runMutation).toHaveBeenCalledOnce();
     expect(ctx.runMutation).toHaveBeenCalledWith(fakeComponent.lib.track, {
       writeKey: "wk_abc",
-      ingestUrl: "https://basic-goshawk-557.convex.site/ingest",
+      ingestUrl: "https://api.convalytics.dev/ingest",
       deploymentName: "happy-panda-123",
       name: "user_signed_up",
       userId: "u42",
