@@ -58,7 +58,7 @@ The CLI outputs a **claim URL**. Share it with the user so they can connect the 
 
 If `index.html` wasn't found (Next.js, Astro, etc.), add the script tag to the `<head>` manually:
 ```html
-<script defer src="https://YOUR_CONVEX_SITE_URL/script.js?key=YOUR_WRITE_KEY"></script>
+<script defer src="https://api.convalytics.dev/script.js?key=YOUR_WRITE_KEY&v=2"></script>
 ```
 - Next.js: add to `app/layout.tsx` or use `next/script` with `strategy="afterInteractive"`
 - Astro: add to your base layout
@@ -271,7 +271,7 @@ The write key is a public ingest identifier, safe to commit. No environment vari
 
 **4. Add browser page view tracking** to your HTML `<head>`:
 ```html
-<script defer src="https://YOUR_CONVEX_SITE_URL/script.js?key=YOUR_WRITE_KEY"></script>
+<script defer src="https://api.convalytics.dev/script.js?key=YOUR_WRITE_KEY&v=2"></script>
 ```
 
 ---
