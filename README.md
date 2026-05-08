@@ -120,10 +120,10 @@ Events are delivered asynchronously and never throw; analytics failures are logg
 For browser page view tracking, add to your `<head>`:
 
 ```html
-<script defer src="https://YOUR_CONVEX_SITE_URL/script.js?key=YOUR_WRITE_KEY"></script>
+<script defer src="https://api.convalytics.dev/script.js?key=YOUR_WRITE_KEY"></script>
 ```
 
-Your Convex site URL is shown in the [Convalytics dashboard](https://convalytics.dev) after claiming your project, or use the CLI (below) to insert it automatically.
+Replace `YOUR_WRITE_KEY` with your project's write key from the [Convalytics dashboard](https://convalytics.dev), or use the CLI (below) to insert it automatically.
 
 ## Query your analytics with Claude
 
