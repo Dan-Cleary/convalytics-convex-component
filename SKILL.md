@@ -353,7 +353,7 @@ convalytics.reset()
 const identity = await ctx.auth.getUserIdentity();
 await analytics.track(ctx, {
   name: "subscription_upgraded",
-  userId: args.userId,
+  userId: String(args.userId),
   userEmail: identity?.email,
   props: { from: currentPlan, to: args.newPlan },
 });
