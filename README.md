@@ -144,7 +144,7 @@ Requires the Solo plan or higher. See [convalytics.dev/mcp](https://convalytics.
 npx convalytics init
 ```
 
-Auto-provisions a project, installs the package, patches `convex.config.ts`, creates `convex/analytics.ts` with the write key inlined, and inserts the browser script tag. No write key required, one is created for you. Pass an existing key to reuse a project:
+Auto-provisions a project, installs the package, patches `convex/convex.config.ts`, creates `convex/analytics.ts` with the write key inlined, inserts the browser script tag into `index.html`, and installs the agent skill file. No write key required, one is created for you. Pass an existing key to reuse a project:
 
 ```bash
 npx convalytics init YOUR_WRITE_KEY
