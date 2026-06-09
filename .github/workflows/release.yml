@@ -21,12 +21,15 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
           cache: npm
           registry-url: https://registry.npmjs.org
 
-      - name: Upgrade npm (trusted publishing requires npm >= 11.5.1)
-        run: npm install -g npm@latest
+      - name: Debug — verify npm + OIDC env
+        run: |
+          node -v
+          npm -v
+          echo "ACTIONS_ID_TOKEN_REQUEST_URL present: ${ACTIONS_ID_TOKEN_REQUEST_URL:+yes}"
 
       - name: Check if version changed
         id: version
