@@ -13,6 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      id-token: write  # for npm trusted publishing (OIDC)
     steps:
       - uses: actions/checkout@v4
         with:
@@ -22,7 +23,9 @@ jobs:
         with:
           node-version: 22
           cache: npm
-          registry-url: https://registry.npmjs.org
+
+      - name: Upgrade npm (trusted publishing requires npm >= 11.5.1)
+        run: npm install -g npm@latest
 
       - name: Check if version changed
         id: version
@@ -53,8 +56,6 @@ jobs:
       - name: Publish to npm
         if: steps.version.outputs.changed == 'true'
         run: npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Tag and release
         if: steps.version.outputs.changed == 'true'
