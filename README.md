@@ -122,7 +122,7 @@ Events are delivered asynchronously and never throw; analytics failures are logg
 For browser page view tracking, add to your `<head>`:
 
 ```html
-<script defer src="https://api.convalytics.dev/script.js?key=YOUR_WRITE_KEY"></script>
+<script defer src="https://api.convalytics.dev/script.js?key=YOUR_WRITE_KEY&v=2"></script>
 ```
 
 Replace `YOUR_WRITE_KEY` with your project's write key from the [Convalytics dashboard](https://convalytics.dev), or use the CLI (below) to insert it automatically.
