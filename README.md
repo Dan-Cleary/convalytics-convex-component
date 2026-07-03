@@ -58,10 +58,12 @@ export const createUser = mutation({
   args: { name: v.string(), email: v.string(), plan: v.string() },
   handler: async (ctx, args) => {
     const userId = await ctx.db.insert("users", args);
+    const identity = await ctx.auth.getUserIdentity();
 
     await analytics.track(ctx, {
       name: "user_signed_up",
       userId: String(userId),
+      userEmail: identity?.email,
       props: { plan: args.plan },
     });
 
